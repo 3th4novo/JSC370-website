@@ -1,6 +1,6 @@
 ---
 title: "JSC370 Final Project"
-author: "Your Name"
+author: "Yiteng Zhang"
 output: 
     html_document:
         toc: TRUE
@@ -8,3 +8,95 @@ output:
 ---
 
 This is my JSC370 Final Project website.
+
+```{r, include=FALSE, echo=FALSE}
+knitr::opts_chunk$set(cache=TRUE)
+library(tidyverse)
+library(plotly)
+library(widgetframe)
+library(tidytext)
+```
+
+
+## Showcasing plots {.tabset}
+
+### Figure 1
+
+```{r, include=FALSE}
+source("process_starbucks_data.R")
+```
+
+
+```{r, include=FALSE}
+topwords_df <- sb_nutr %>%
+  unnest_tokens(word, Item, token = "words") %>%
+  count(word, sort = T) %>%
+  head(10)
+
+top_words <- topwords_df$word
+
+sb_nutr <- sb_nutr %>% 
+  rename(Carbs = "Carb. (g)",
+         Fat = "Fat (g)",
+         Fiber = "Fiber (g)",
+         Protein = "Protein (g)")
+```
+
+
+```{r, echo=FALSE, warning=FALSE}
+boxplot1 <- sb_nutr %>% 
+  unnest_tokens(word, Item, token = "words") %>%
+  filter(word %in% topwords_df$word) %>% 
+  plot_ly(
+    x = ~ word,
+    y = ~ Calories,
+    type = "box",
+    name = "Calories",
+    alpha = 0.5
+  ) %>%
+  add_boxplot(y = ~Fat, name = "Fat", alpha = 0.5) %>%
+  add_boxplot(y = ~Carbs, name = "Carbohydrates", alpha = 0.5) %>%
+  add_boxplot(y = ~Fiber, name = "Fiber", alpha = 0.5) %>%
+  add_boxplot(y = ~Protein, name = "Protein", alpha = 0.5) %>%
+  layout(
+    title = "Boxplot of Nutritional Contents by Top Words in Item Names",
+    xaxis = list(title = "Top Words in Item Names"),
+    yaxis = list(title = "Value"),
+    hovermode = "compare"
+  )
+
+boxplot1 %>% layout(boxmode = "group")
+```
+
+### Figure 2
+
+```{r, echo=FALSE, warning=FALSE}
+plot2 <- sb_nutr %>% 
+  unnest_tokens(word, Item, token = "words") %>%
+  filter(word %in% topwords_df$word) %>% 
+  plot_ly(
+    x =  ~Calories,
+    y =  ~Carbs,
+    z =  ~Protein,
+    type = "scatter3d",
+    mode = "markers",
+    color =  ~word
+  )
+plot2
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
