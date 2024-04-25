@@ -1,5 +1,6 @@
 ---
-title: "JSC370 Final Project"
+title: "Temporal and Spatial Dynamics of Firearm Discharges in Toronto"
+subtitle: "JSC370 Final Project"
 author: "Yiteng Zhang"
 output: 
     html_document:
@@ -7,19 +8,33 @@ output:
         toc_float: TRUE
 ---
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(data.table)
+library(leaflet)
+library(tidyverse)
+library(knitr)
+library(dplyr)
+library(ggplot2)
+library(gridExtra)
+library(mgcv)
+```
+
 # Introduction
+
+## Background and Motivation
+
+The motivation from conducting an analysis on the shooting dataset comes from the fact that people are suffering from more and more unsafe communities around them. Therefore the need for a data-driven analysis is crucial, and can provide valuable insights for relative authorities. This information can be used for these authorities to identify factors to gun violence, and thus enhance the management of Toronto Police, or maybe affect future law enforcement related to gun control. I believe these measures would reduce the risk of gun violence faced by people in Toronto, and improve the overall safety in the city.
 
 ## Overview
 
 I will be working with the Shooting and Firearm Discharges Open Data dataset provided by Toronto Police Service. The shooting dataset records all reported shooting-related occurrences in Toronto since 2004. By looking at the official data portal provided by Toronto Police service, I come out with the primary questions of the project: When and where do most shooting and firearm discharges occur in Toronto? What is the trend of change for shooting incidents over the years?
 
-## Motivation
+# Methods
 
-The motivation from conducting an analysis on the shooting dataset comes from the fact that people are suffering from more and more unsafe communities around them. Therefore the need for a data-driven analysis is crucial, and can provide valuable insights for relative authorities. This information can be used for these authorities to identify factors to gun violence, and thus enhance the management of Toronto Police, or maybe affect future law enforcement related to gun control. I believe these measures would reduce the risk of gun violence faced by people in Toronto, and improve the overall safety in the city.
+## Data
 
-# Data
-
-## Data Description
+### Data Description
 
 The original dataset consists of 6051 rows with 27 columns. Each row in the dataset records an occurrence of shooting event and each column is an attribute of the incident. Some important attributes are:
 
@@ -37,15 +52,259 @@ The original dataset consists of 6051 rows with 27 columns. Each row in the data
 
 - LAT_WGS84: Latitude Coordinates.
 
-# Methods
+### Data Cleaning and Preprocessing
+
+```{r, include=FALSE}
+shooting <- data.table::fread("Shooting_and_Firearm_Discharges_Open_Data.csv")
+```
+
+```{r, include=FALSE}
+shooting1 <- shooting %>% 
+  select(EVENT_UNIQUE_ID, OCC_DATE, OCC_YEAR, OCC_MONTH, OCC_DOW, OCC_TIME_RANGE, DEATH, INJURIES, DIVISION, NEIGHBOURHOOD_158, LONG_WGS84, LAT_WGS84)
+```
+
+```{r, include=FALSE}
+shooting1$OCC_TIME_RANGE <- factor(shooting1$OCC_TIME_RANGE)
+shooting1$OCC_MONTH <- factor(shooting1$OCC_MONTH)
+shooting1$OCC_DOW <- factor(shooting1$OCC_DOW)
+shooting1$NEIGHBOURHOOD_158 <- factor(shooting1$NEIGHBOURHOOD_158)
+```
+
+```{r, include=FALSE}
+shooting1 <- shooting1 %>% 
+  filter(LONG_WGS84 != 0, LAT_WGS84 != 0)
+shooting1[shooting1 == "NSA"] <- NA
+```
+
+```{r, include=FALSE}
+shooting1 <- shooting1 %>% 
+  rename(date = OCC_DATE,
+         year = OCC_YEAR, 
+         month = OCC_MONTH,
+         dow = OCC_DOW,
+         time_range = OCC_TIME_RANGE,
+         death = DEATH,
+         injuries = INJURIES,
+         division = DIVISION,
+         neighbourhood = NEIGHBOURHOOD_158,
+         long = LONG_WGS84,
+         lat = LAT_WGS84)
+```
+
+```{r, include=FALSE}
+shooting1$total.deaths.injuries <- shooting1$death + shooting1$injuries
+```
+
+
+```{r, include=FALSE}
+getSeason <- function(month) {
+  if (month %in% c("March", 'April', 'May')) {
+    return("Spring")
+  } else if (month %in% c('June', 'July', 'August')) {
+    return("Summer")
+  } else if (month %in% c('September', 'October', 'November')) {
+    return("Fall")
+  } else {
+    return("Winter")
+  }
+}
+shooting1$season <- sapply(shooting1$month, getSeason)
+shooting1$season <- factor(shooting1$season)
+```
+
+```{r, include=FALSE}
+max_long <- max(shooting1$long)
+min_long <- min(shooting1$long)
+
+max_lat <- max(shooting1$lat)
+min_lat <- min(shooting1$lat)
+
+mid_long <- (max_long + min_long) / 2
+mid_lat <- (max_lat + min_lat) / 2
+
+getPosition <- function(long, lat) {
+  if (long >= mid_long & lat >= mid_lat) {
+    return("NE")
+  } else if (long < mid_long & lat >= mid_lat) {
+    return("NW")
+  } else if (long < mid_long & lat < mid_lat) {
+    return("SW")
+  } else {
+    return("SE")
+  }
+}
+shooting1$position <- mapply(getPosition, shooting1$long, shooting1$lat)
+shooting1$position <- factor(shooting1$position)
+```
+
+```{r, include=FALSE}
+mean_by_division <- shooting1 %>% 
+  group_by(division, year) %>% 
+  summarise(mean_total = mean(total.deaths.injuries))
+```
+
+First, load in the dataset by the fread function in the data.table package. Filter the columns to only keep the columns that are relevant to our analysis, which are id of the incident, the datetime value of the occurrence of the incident, the count of deaths and injuries of the incident, the police division of the location and the coordinates of the incident. Then factor columns with string type, which in this case are OCC_TIME_RANGE, OCC_MONTH, OCC_DOW, NEIGHBOURHOOD_158. The missing values of longitudes and latitudes are recorded as 0, and other missing values are recorded as "" or "NSA", so I filter out rows with longitude and latitude being 0 and mark all "NSA" values to NA. Then Rename all variables in a better way for later analysis. I would like to both consider deaths and injuries of an incident, so I created another column summing up the counts of deaths and injuries. Mutate another column called "season" that represents the month of the occurrence. I would like to look into more positional attributes of related to the location, so I calculate the geographical midpoint of the datapoints and separate the points into NorthEast, NorthWest, SouthWest and SouthEast categories. Factor the two mutated columns as well. 
+
+I would like to look into data in each police division as well. 
+
+
+## Poisson Regression Model
+
+Apart from the EDA above, to investigate the factors influencing the number of total deaths and injuries reported in shooting incidents, I am employing a poisson regression model. The response variable total.deaths.injuries represents the deaths and injuries of shooting events. The predictors are year, position, and day of the week. Then we can write the full model:
+
+$$
+\log(\lambda_i) = \beta_0 + \beta_1 \times Year_i + \beta_2 \times Position_i + \beta_3 \times DOW_i
+$$
+
+where $\lambda_i$ is the expected number of total deaths and injuries for the ith observation. $\beta_0$ represents the intercept, $beta_1$, $\beta_2$, $\beta_3$ are coefficients of year, position, and day of the week, respectively.
+
+## Interactive Visualization
+
 
 # Results 
 
+## Exploratory Data Analysis
+
+```{r, eval=FALSE, include=FALSE}
+head(shooting1)
+```
+
+```{r, echo=FALSE}
+shooting_map <- leaflet(shooting1) %>%
+  addTiles() %>%
+  addCircleMarkers(~long, ~lat, 
+                   color = ~case_when(
+                     position == "NE" ~ "blue",
+                     position == "NW" ~ "red",
+                     position == "SW" ~ "green",
+                     position == "SE" ~ "yellow",
+                     TRUE ~ "black" # default color
+                   ),
+                   opacity = 1, fillOpacity = 1,
+                   radius = 1, 
+                   popup = ~paste("Position:", position, "<br>",
+                                  "Date:", date, "<br>",
+                                  "Time Range:", time_range, "<br>",
+                                  "Deaths:", death, "<br>",
+                                  "Injuries:", injuries)
+  )
+
+# Display the map
+shooting_map
+```
+
+First, take a look at how the records are distributed in terms of longitude and latitude on the map. We can see that there are more sparse data points in the middle area of Toronto, probably because the area is less inhabited.
+
+```{r, echo=FALSE}
+top_divisions <- shooting1 %>%
+  group_by(division) %>%
+  summarise(total_deaths = sum(death, na.rm = TRUE),
+            total_injuries = sum(injuries, na.rm = TRUE),
+            total_casualties = total_deaths + total_injuries) %>%
+  arrange(desc(total_casualties)) %>%
+  top_n(10, total_casualties)
+
+knitr::kable(top_divisions, caption = "Top 10 Divisions with Highest Deaths and Injuries")
+```
+
+From the table we can take a look at the top 10 divisions that have the highest deaths and injuries over the ten years. We can see that division D31 suffers from obviously high casualties, compared even to the second high division D23.
+
+```{r, echo=FALSE}
+top_neighbourhoods <- shooting1 %>%
+  group_by(neighbourhood = neighbourhood) %>%
+  summarise(total_deaths = sum(death, na.rm = TRUE),
+            total_injuries = sum(injuries, na.rm = TRUE),
+            total_casualties = total_deaths + total_injuries) %>%
+  arrange(desc(total_casualties)) %>%
+  top_n(10, total_casualties)
+
+kable(top_neighbourhoods, caption = "Top 10 Neighbourhoods with Highest Deaths and Injuries")
+```
+
+From this table we can see the top 10 neighbourhoods with highest deaths and injuries. Notice that the top 3 neighbourhoods have relatively high numbers compared to the rest in the table.
+
+```{r, warning=FALSE, echo=FALSE}
+plot_month <- ggplot(shooting1, aes(x = month)) +
+  geom_histogram(stat = "count", fill = "steelblue") +
+  xlab("Month") +
+  ylab("Total Deaths and Injuries") +
+  ggtitle("Total by Month") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+plot_year <- ggplot(shooting1, aes(x = year)) +
+  geom_histogram(stat = "count", fill = "darkgreen") +
+  xlab("Year") +
+  ylab("Total Deaths and Injuries") +
+  ggtitle("Total by Year") +
+  theme_minimal()
+
+plot_dow <- ggplot(shooting1, aes(x = dow)) +
+  geom_bar(fill = "tomato") +
+  xlab("Day of the Week") +
+  ylab("Total Deaths and Injuries") +
+  ggtitle("Total by Day of the Week") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+plot_time_range <- ggplot(shooting1, aes(x = time_range)) +
+  geom_bar(fill = "gold") +
+  xlab("Time Range") +
+  ylab("Total Deaths and Injuries") +
+  ggtitle("Total by Time Range") +
+  theme_minimal()
+
+grid.arrange(plot_month, plot_year, plot_dow, plot_time_range, ncol = 2)
+
+```
+
+Here are four histograms that show the distribution of total deaths and injuries by month, year, day of week and time range. 1. We can see that over the ten years, the highest month of deaths and injuries is August, and the lowest month is February. 2. Accounting for year, this number shows a significant increase from the year 2015, reaching the peak value of almost 500 at the year 2019, then experience a decrease to the year of 2024. Before 2015, it shows a steady trend with a slight decrease after 2010. 3. The barplot of total deaths and injuries by day of week shows that the numbers are approximately evenly distributed during the weekdays, however the numbers are higher during the weekends. 4. For the barplot of total deaths and injuries by time range, we can see that total deaths and injuries are higher during evening and at night, and are lower during afternoon and morning.
+
+```{r, echo=FALSE}
+
+# Basic map setup
+shooting_map <- leaflet(data = shooting1) %>%
+  addTiles() %>%  # Add default OpenStreetMap tiles
+  addCircles(
+    lng = ~long, lat = ~lat,
+    weight = 1,
+    color = ~ifelse(total.deaths.injuries > 3, "red", "blue"), # Custom color logic
+    opacity = 1, fillOpacity = 0.5,
+    radius = ~total.deaths.injuries * 100,  # Adjust size based on casualties
+    popup = ~paste("Division:", division, "<br>",
+                   "Total Casualties:", total.deaths.injuries)
+  )
+
+# Add legend manually if needed
+shooting_map <- shooting_map %>% addLegend(
+  position = "bottomright",
+  colors = c("red", "blue"),
+  labels = c("High Casualties", "Low Casualties"), 
+  title = "Casualty Levels"
+)
+
+# Render the map
+shooting_map
+
+```
+
+This is a leaflet map of spatial information of total deaths and injuries over the ten years. Here, I define high casualties to be the number of casualties to be greater than 3, and low casualties to be <= 3. The larger radius means larger number of casualties in that shooting event. We can see that an overall trend is that shooting events are more distributed along the highways. Also there are more shooting events with high and low causualties in the downtown area and scarbough area. 
+
+
+
 # Conclusion
+
+In conclusion, the project aims to analyze the spatial and timely distribution of deaths and injuries caused by firearm shooting events in Toronto over the past ten years. We used a public dataset provided by Toronto Police that offers the exact same content. For analyzing methods, we utilized several visualization techniques including leaflet plots, barplots and histograms, as well as poisson regression model and spline regression model to model the space and time structure that might affect deaths and injuries in shooting events. 
+
+Considering time, the value seems to be higher during the evening and night in a day, higher during the weekend. This value doesn't seem to be so related with month, but showed a significant increase each year after 2015. Considering space, we find out that for police divisions, the most casualties happen in D31. For neighbourhoods, the most casualties happen in Glenfield-Jane Heights. Also there are more shooting events with relatively higher casualty level beside some of the main highways of Toronto. Also downtown and scarbough have higher number of shooting events than other areas.
+
+For the poisson regression model, only the year predictor is significant in the model, the result tend not to be significant. So I tried the spline regression model to capture the spatial information in the map of Toronto. The model is significant and captures some of the spatial information, but only a small portion of it.
+
+Therefore my two research questions are answered by the above analysis.
 
 # Resources
 
-This is my JSC370 Final Project website.
+https://data.torontopolice.on.ca/datasets/TorontoPS::shooting-and-firearm-discharges-open-data/about
 
 ```{r, include=FALSE, echo=FALSE}
 knitr::opts_chunk$set(cache=TRUE)
