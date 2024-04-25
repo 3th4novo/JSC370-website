@@ -358,6 +358,64 @@ div.tocify {
 </div>
 
 
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<div id="overview" class="section level2">
+<h2>Overview</h2>
+<p>I will be working with the Shooting and Firearm Discharges Open Data
+dataset provided by Toronto Police Service. The shooting dataset records
+all reported shooting-related occurrences in Toronto since 2004. By
+looking at the official data portal provided by Toronto Police service,
+I come out with the primary questions of the project: When and where do
+most shooting and firearm discharges occur in Toronto? What is the trend
+of change for shooting incidents over the years?</p>
+</div>
+<div id="motivation" class="section level2">
+<h2>Motivation</h2>
+<p>The motivation from conducting an analysis on the shooting dataset
+comes from the fact that people are suffering from more and more unsafe
+communities around them. Therefore the need for a data-driven analysis
+is crucial, and can provide valuable insights for relative authorities.
+This information can be used for these authorities to identify factors
+to gun violence, and thus enhance the management of Toronto Police, or
+maybe affect future law enforcement related to gun control. I believe
+these measures would reduce the risk of gun violence faced by people in
+Toronto, and improve the overall safety in the city.</p>
+</div>
+</div>
+<div id="data" class="section level1">
+<h1>Data</h1>
+<div id="data-description" class="section level2">
+<h2>Data Description</h2>
+<p>The original dataset consists of 6051 rows with 27 columns. Each row
+in the dataset records an occurrence of shooting event and each column
+is an attribute of the incident. Some important attributes are:</p>
+<ul>
+<li><p>OCC_DATE: The specific timestamp of the occurrence of the
+shooting incident.</p></li>
+<li><p>OCC_TIME_RANGE: The time range in a day where the incident
+occurs. e.x.: Afternoon</p></li>
+<li><p>DEATH: The number of deaths counted from the incident.</p></li>
+<li><p>INJURIES: The number of injuries counted from the
+incident.</p></li>
+<li><p>NEIGHBOURHOOD_158: Name of Neighbourhood using City of Toronto’s
+new 158 neighbourhood structure.</p></li>
+<li><p>LONG_WGS84: Longitude Coordinates.</p></li>
+<li><p>LAT_WGS84: Latitude Coordinates.</p></li>
+</ul>
+</div>
+</div>
+<div id="methods" class="section level1">
+<h1>Methods</h1>
+</div>
+<div id="results" class="section level1">
+<h1>Results</h1>
+</div>
+<div id="conclusion" class="section level1">
+<h1>Conclusion</h1>
+</div>
+<div id="resources" class="section level1">
+<h1>Resources</h1>
 <p>This is my JSC370 Final Project website.</p>
 <div id="showcasing-plots" class="section level2 tabset">
 <h2 class="tabset">Showcasing plots</h2>
@@ -372,8 +430,9 @@ div.tocify {
 <script type="application/json" data-for="htmlwidget-eae496c310ced54fe17a">{"x":{"visdat":{"627b5f32b77":["function () ","plotlyVisDat"]},"cur_data":"627b5f32b77","attrs":{"627b5f32b77":{"x":{},"y":{},"z":{},"mode":"markers","color":{},"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d"}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"scene":{"xaxis":{"title":"Calories"},"yaxis":{"title":"Carbs"},"zaxis":{"title":"Protein"}},"hovermode":"closest","showlegend":true},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"data":[{"x":[420,30,60,60,70,140,140,140,140,150,150],"y":[42,8,15,15,17,35,35,35,35,38,38],"z":[27,0,0,0,0,0,0,0,0,0,0],"mode":"markers","type":"scatter3d","name":"black","marker":{"color":"rgba(102,194,165,1)","line":{"color":"rgba(102,194,165,1)"}},"textfont":{"color":"rgba(102,194,165,1)"},"error_y":{"color":"rgba(102,194,165,1)"},"error_x":{"color":"rgba(102,194,165,1)"},"line":{"color":"rgba(102,194,165,1)"},"frame":null},{"x":[60,60,60,60,70,70,120,120,120,120,140,140,140,140,140,140,140,140,140,140,150,150,150,150,150,150],"y":[15,15,15,15,17,17,31,31,31,31,35,35,35,35,35,35,35,35,35,35,38,37,38,38,37,38],"z":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"mode":"markers","type":"scatter3d","name":"bottled","marker":{"color":"rgba(228,156,113,1)","line":{"color":"rgba(228,156,113,1)"}},"textfont":{"color":"rgba(228,156,113,1)"},"error_y":{"color":"rgba(228,156,113,1)"},"error_x":{"color":"rgba(228,156,113,1)"},"line":{"color":"rgba(228,156,113,1)"},"frame":null},{"x":[170,310,440,330,390,490,410,490,440,160,180,180,210,300,320,320,360,430],"y":[30,42,60,38,43,64,46,55,54,23,23,12,33,47,47,53,53,45],"z":[2,4,7,6,7,6,6,7,5,2,2,4,20,10,14,20,14,12],"mode":"markers","type":"scatter3d","name":"chocolate","marker":{"color":"rgba(201,152,157,1)","line":{"color":"rgba(201,152,157,1)"}},"textfont":{"color":"rgba(201,152,157,1)"},"error_y":{"color":"rgba(201,152,157,1)"},"error_x":{"color":"rgba(201,152,157,1)"},"line":{"color":"rgba(201,152,157,1)"},"frame":null},{"x":[390,370,0,5,10,10,50,60,110,110,140,280,350],"y":[57,67,0,0,2,0,11,13,24,24,28,60,64],"z":[5,5,0,0,1,1,1,1,3,3,4,4,15],"mode":"markers","type":"scatter3d","name":"coffee","marker":{"color":"rgba(175,154,200,1)","line":{"color":"rgba(175,154,200,1)"}},"textfont":{"color":"rgba(175,154,200,1)"},"error_y":{"color":"rgba(175,154,200,1)"},"error_x":{"color":"rgba(175,154,200,1)"},"line":{"color":"rgba(175,154,200,1)"},"frame":null},{"x":[370,490,230,500,410,450,310,170,170,500,290,480],"y":[32,40,28,41,43,42,9,13,13,35,33,42],"z":[18,21,16,15,21,24,19,13,13,26,19,16],"mode":"markers","type":"scatter3d","name":"egg","marker":{"color":"rgba(226,148,184,1)","line":{"color":"rgba(226,148,184,1)"}},"textfont":{"color":"rgba(226,148,184,1)"},"error_y":{"color":"rgba(226,148,184,1)"},"error_x":{"color":"rgba(226,148,184,1)"},"line":{"color":"rgba(226,148,184,1)"},"frame":null},{"x":[470,0,5,10,30,30,30,50,60,60,60,60,70,70,70,70,90,120,120,130,130,130,130,130,140,140,190,200,230,250,260,300],"y":[68,0,0,2,8,8,8,11,15,15,13,15,17,17,17,17,24,31,31,21,21,21,21,13,23,23,30,34,36,37,34,47],"z":[6,0,0,1,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,5,5,5,5,8,5,5,7,7,9,10,11,10],"mode":"markers","type":"scatter3d","name":"iced","marker":{"color":"rgba(176,208,99,1)","line":{"color":"rgba(176,208,99,1)"}},"textfont":{"color":"rgba(176,208,99,1)"},"error_y":{"color":"rgba(176,208,99,1)"},"error_x":{"color":"rgba(176,208,99,1)"},"line":{"color":"rgba(176,208,99,1)"},"frame":null},{"x":[600,300,430,300,360,600,530,350,500,370,280,490,230,500,450,500,470,480,460],"y":[80,34,34,43,52,47,44,31,46,32,18,40,28,41,42,35,35,42,31],"z":[19,11,21,19,22,32,23,16,18,18,18,21,16,15,24,26,21,16,29],"mode":"markers","type":"scatter3d","name":"sandwich","marker":{"color":"rgba(227,217,62,1)","line":{"color":"rgba(227,217,62,1)"}},"textfont":{"color":"rgba(227,217,62,1)"},"error_y":{"color":"rgba(227,217,62,1)"},"error_x":{"color":"rgba(227,217,62,1)"},"line":{"color":"rgba(227,217,62,1)"},"frame":null},{"x":[10,45,45,50,60,60,80,90,90,200,210,430],"y":[2,11,5,11,14,13,18,27,27,34,33,45],"z":[1,0,3,1,0,1,0,0,0,20,20,12],"mode":"markers","type":"scatter3d","name":"starbucks","marker":{"color":"rgba(245,207,100,1)","line":{"color":"rgba(245,207,100,1)"}},"textfont":{"color":"rgba(245,207,100,1)"},"error_y":{"color":"rgba(245,207,100,1)"},"error_x":{"color":"rgba(245,207,100,1)"},"line":{"color":"rgba(245,207,100,1)"},"frame":null},{"x":[60,60,60,60,70,70,120,120,120,120,140,140,140,140,140,140,140,140,140,140,150,150,150,150,150,150],"y":[15,15,15,15,17,17,31,31,31,31,35,35,35,35,35,35,35,35,35,35,38,37,38,38,37,38],"z":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"mode":"markers","type":"scatter3d","name":"tazo","marker":{"color":"rgba(219,192,155,1)","line":{"color":"rgba(219,192,155,1)"}},"textfont":{"color":"rgba(219,192,155,1)"},"error_y":{"color":"rgba(219,192,155,1)"},"error_x":{"color":"rgba(219,192,155,1)"},"line":{"color":"rgba(219,192,155,1)"},"frame":null},{"x":[30,30,30,60,60,60,70,70,80,90,120,120],"y":[8,8,8,15,15,15,17,17,19,24,31,31],"z":[0,0,0,0,0,0,0,0,0,0,0,0],"mode":"markers","type":"scatter3d","name":"tea","marker":{"color":"rgba(179,179,179,1)","line":{"color":"rgba(179,179,179,1)"}},"textfont":{"color":"rgba(179,179,179,1)"},"error_y":{"color":"rgba(179,179,179,1)"},"error_x":{"color":"rgba(179,179,179,1)"},"line":{"color":"rgba(179,179,179,1)"},"frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
 </div>
 </div>
+</div>
 
-<p>Copyright &copy; 2023. Meredith Franklin.</p>
+<p>Copyright &copy; 2024. Yiteng Zhang.</p>
 
 
 </div>
