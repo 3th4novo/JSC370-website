@@ -55,7 +55,7 @@ The original dataset consists of 6051 rows with 27 columns. Each row in the data
 ### Data Cleaning and Preprocessing
 
 ```{r, include=FALSE}
-shooting <- data.table::fread("Shooting_and_Firearm_Discharges_Open_Data.csv")
+shooting <- data.table::fread("data/Shooting_and_Firearm_Discharges_Open_Data.csv")
 ```
 
 ```{r, include=FALSE}
@@ -156,7 +156,7 @@ $$
 \log(\lambda_i) = \beta_0 + \beta_1 \times Year_i + \beta_2 \times Position_i + \beta_3 \times DOW_i
 $$
 
-where $\lambda_i$ is the expected number of total deaths and injuries for the ith observation. $\beta_0$ represents the intercept, $beta_1$, $\beta_2$, $\beta_3$ are coefficients of year, position, and day of the week, respectively.
+where $\lambda_i$ is the expected number of total deaths and injuries for the ith observation. $\beta_0$ represents the intercept, $\beta_1$, $\beta_2$, $\beta_3$ are coefficients of year, position, and day of the week, respectively.
 
 ## Interactive Visualization
 

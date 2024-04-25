@@ -8,8 +8,8 @@ navbar:
   right:
     - icon: fa-github fa-lg
       href: https://github.com/3th4novo/JSC370-website
-    - text: "JSC370 Home"
-      href: https://jsc370.github.io/JSC370-2024/
+    - text: "Author Home Page"
+      href: https://github.com/3th4novo
 output:
   html_document:
     theme: cosmo

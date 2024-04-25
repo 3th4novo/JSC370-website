@@ -12,3 +12,9 @@ plotly
 htmlwidgets
 widgetframe
 tidytext
+data.table
+leaflet
+knitr
+gridExtra
+nlme
+mgcv
