@@ -7,6 +7,44 @@ output:
         toc_float: TRUE
 ---
 
+# Introduction
+
+## Overview
+
+I will be working with the Shooting and Firearm Discharges Open Data dataset provided by Toronto Police Service. The shooting dataset records all reported shooting-related occurrences in Toronto since 2004. By looking at the official data portal provided by Toronto Police service, I come out with the primary questions of the project: When and where do most shooting and firearm discharges occur in Toronto? What is the trend of change for shooting incidents over the years?
+
+## Motivation
+
+The motivation from conducting an analysis on the shooting dataset comes from the fact that people are suffering from more and more unsafe communities around them. Therefore the need for a data-driven analysis is crucial, and can provide valuable insights for relative authorities. This information can be used for these authorities to identify factors to gun violence, and thus enhance the management of Toronto Police, or maybe affect future law enforcement related to gun control. I believe these measures would reduce the risk of gun violence faced by people in Toronto, and improve the overall safety in the city.
+
+# Data
+
+## Data Description
+
+The original dataset consists of 6051 rows with 27 columns. Each row in the dataset records an occurrence of shooting event and each column is an attribute of the incident. Some important attributes are:
+
+- OCC_DATE: The specific timestamp of the occurrence of the shooting incident.
+
+- OCC_TIME_RANGE: The time range in a day where the incident occurs. e.x.: Afternoon
+
+- DEATH: The number of deaths counted from the incident.
+
+- INJURIES: The number of injuries counted from the incident.
+
+- NEIGHBOURHOOD_158: Name of Neighbourhood using City of Toronto's new 158 neighbourhood structure.
+
+- LONG_WGS84: Longitude Coordinates.
+
+- LAT_WGS84: Latitude Coordinates.
+
+# Methods
+
+# Results 
+
+# Conclusion
+
+# Resources
+
 This is my JSC370 Final Project website.
 
 ```{r, include=FALSE, echo=FALSE}
