@@ -18,3 +18,4 @@ knitr
 gridExtra
 nlme
 mgcv
+broom

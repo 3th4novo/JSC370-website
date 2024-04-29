@@ -1,11 +1,13 @@
 ---
 title: "Temporal and Spatial Dynamics of Firearm Discharges in Toronto"
-subtitle: "JSC370 Final Project"
 author: "Yiteng Zhang"
-output: 
-    html_document:
-        toc: TRUE
-        toc_float: TRUE
+subtitle: JSC370 Final Project
+output:
+  pdf_document:
+    toc: true
+  html_document:
+    toc: true
+    toc_float: true
 ---
 
 ```{r setup, include=FALSE}
@@ -16,8 +18,10 @@ library(tidyverse)
 library(knitr)
 library(dplyr)
 library(ggplot2)
+library(plotly)
 library(gridExtra)
 library(mgcv)
+library(broom)
 ```
 
 # Introduction
@@ -158,9 +162,6 @@ $$
 
 where $\lambda_i$ is the expected number of total deaths and injuries for the ith observation. $\beta_0$ represents the intercept, $\beta_1$, $\beta_2$, $\beta_3$ are coefficients of year, position, and day of the week, respectively.
 
-## Interactive Visualization
-
-
 # Results 
 
 ## Exploratory Data Analysis
@@ -290,6 +291,35 @@ shooting_map
 
 This is a leaflet map of spatial information of total deaths and injuries over the ten years. Here, I define high casualties to be the number of casualties to be greater than 3, and low casualties to be <= 3. The larger radius means larger number of casualties in that shooting event. We can see that an overall trend is that shooting events are more distributed along the highways. Also there are more shooting events with high and low causualties in the downtown area and scarbough area. 
 
+## Preliminary Results
+
+```{r, echo=FALSE}
+model <- glm(total.deaths.injuries ~ year + position + dow, 
+             family = poisson(link = "log"), 
+             data = shooting1)
+
+summary_model <- summary(model)$coefficients
+
+kable(summary_model, caption = "Summary of GLM Model")
+```
+
+From the coefficients summary, we can see that the predictor position and dow is not significant in the model. Therefore the results are not so satisfiying.
+
+```{r, echo=FALSE}
+gam_temp <- gam(total.deaths.injuries~s(long,lat,bs="ts",k=60, fx=TRUE),data=shooting1)
+plot(gam_temp)
+```
+
+From the plot we can see that the black line is the estimated value of response, the dotted lines represent confidence interval within one standard error.
+
+```{r, echo=FALSE}
+tidy_gam <- tidy(gam_temp)
+
+# Create a table with kable
+kable(tidy_gam, caption = "Tidy Summary of GAM Model")
+```
+
+From the summary of the coefficients we can see that the smooth term s(long,lat) has an estimated degrees of freedom of 59 with high significance, indicating a complex smooth with a lot of flexibility to fit the data. Therefore it suggests that there is a spatial structure in the data that the smooth term is capturing. Also the coefficient of intercept is also significant. However, there is still much space for improvement of the model because R^2 is 0.00792, explaining only a small portion of the deviance.
 
 
 # Conclusion
@@ -302,6 +332,76 @@ For the poisson regression model, only the year predictor is significant in the 
 
 Therefore my two research questions are answered by the above analysis.
 
+
+## Showcasing plots {.tabset}
+
+### Figure 1
+
+```{r, echo=FALSE}
+plot_ly(
+    data = shooting1,
+    x =  ~lat,
+    y =  ~long,
+    z =  ~total.deaths.injuries,
+    type = "scatter3d",
+    mode = "markers",
+    color = ~time_range,
+    marker = list(
+    size = 1.5  
+  )
+  ) %>%
+  layout(
+    title = "Casualties vs Geographic Location",
+    xaxis = list(title = "latitude"),
+    yaxis = list(title = "longtitude")
+  )
+```
+
+### Figure 2
+
+```{r, warning=FALSE, echo=FALSE}
+shooting1 %>%
+  plot_ly(
+    x = ~year,
+    y = ~total.deaths.injuries,
+    type = 'scatter',
+    mode = 'markers',
+    color = ~month,
+    text = ~paste('DOW: ', dow, '<br>TR: ', time_range),
+    hoverinfo = 'text'
+  ) %>%
+  layout(
+    title = "Casualties vs Year",
+    xaxis = list(title = "Year"),
+    yaxis = list(title = "Casualties"),
+    hovermode = "compare"
+  )
+```
+
+
+### Figure 3
+
+```{r, echo=FALSE, warning=FALSE}
+boxplot <- shooting1 %>% 
+  plot_ly(
+    x = ~ dow,
+    y = ~ total.deaths.injuries,
+    type = "box",
+    name = "Casualties",
+    alpha = 0.5
+  ) %>%
+  add_boxplot(y = ~season, name = "Season", alpha = 0.5) %>%
+  add_boxplot(y = ~time_range, name = "Time Range", alpha = 0.5) %>%
+  layout(
+    title = "Boxplot of causualties based on Day of Week",
+    xaxis = list(title = "Day of Week"),
+    yaxis = list(title = "Casualties"),
+    hovermode = "compare"
+  )
+
+boxplot %>% layout(boxmode = "group")
+```
+
 # Resources
 
 https://data.torontopolice.on.ca/datasets/TorontoPS::shooting-and-firearm-discharges-open-data/about
@@ -313,75 +413,6 @@ library(plotly)
 library(widgetframe)
 library(tidytext)
 ```
-
-
-## Showcasing plots {.tabset}
-
-### Figure 1
-
-```{r, include=FALSE}
-source("process_starbucks_data.R")
-```
-
-
-```{r, include=FALSE}
-topwords_df <- sb_nutr %>%
-  unnest_tokens(word, Item, token = "words") %>%
-  count(word, sort = T) %>%
-  head(10)
-
-top_words <- topwords_df$word
-
-sb_nutr <- sb_nutr %>% 
-  rename(Carbs = "Carb. (g)",
-         Fat = "Fat (g)",
-         Fiber = "Fiber (g)",
-         Protein = "Protein (g)")
-```
-
-
-```{r, echo=FALSE, warning=FALSE}
-boxplot1 <- sb_nutr %>% 
-  unnest_tokens(word, Item, token = "words") %>%
-  filter(word %in% topwords_df$word) %>% 
-  plot_ly(
-    x = ~ word,
-    y = ~ Calories,
-    type = "box",
-    name = "Calories",
-    alpha = 0.5
-  ) %>%
-  add_boxplot(y = ~Fat, name = "Fat", alpha = 0.5) %>%
-  add_boxplot(y = ~Carbs, name = "Carbohydrates", alpha = 0.5) %>%
-  add_boxplot(y = ~Fiber, name = "Fiber", alpha = 0.5) %>%
-  add_boxplot(y = ~Protein, name = "Protein", alpha = 0.5) %>%
-  layout(
-    title = "Boxplot of Nutritional Contents by Top Words in Item Names",
-    xaxis = list(title = "Top Words in Item Names"),
-    yaxis = list(title = "Value"),
-    hovermode = "compare"
-  )
-
-boxplot1 %>% layout(boxmode = "group")
-```
-
-### Figure 2
-
-```{r, echo=FALSE, warning=FALSE}
-plot2 <- sb_nutr %>% 
-  unnest_tokens(word, Item, token = "words") %>%
-  filter(word %in% topwords_df$word) %>% 
-  plot_ly(
-    x =  ~Calories,
-    y =  ~Carbs,
-    z =  ~Protein,
-    type = "scatter3d",
-    mode = "markers",
-    color =  ~word
-  )
-plot2
-```
-
 
 
 
